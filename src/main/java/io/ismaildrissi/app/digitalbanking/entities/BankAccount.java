@@ -1,5 +1,6 @@
 package io.ismaildrissi.app.digitalbanking.entities;
 
+import io.ismaildrissi.app.digitalbanking.enums.AccountStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,12 +10,12 @@ import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "TYPE",length = 4)
+@DiscriminatorColumn(name = "TYPE",length = 2)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class BankAccount {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     private String id;
     private double balance;
     private Date createdAt;
@@ -23,5 +24,4 @@ public class BankAccount {
     private Customer customer;
     @OneToMany(mappedBy = "bankAccount",fetch = FetchType.LAZY)
     private List<AccountOperation> accountOperations;
-
 }
