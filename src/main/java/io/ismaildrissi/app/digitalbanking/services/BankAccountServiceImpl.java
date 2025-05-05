@@ -1,5 +1,6 @@
 package io.ismaildrissi.app.digitalbanking.services;
 
+import io.ismaildrissi.app.digitalbanking.dtos.CustomerDTO;
 import io.ismaildrissi.app.digitalbanking.entities.*;
 import io.ismaildrissi.app.digitalbanking.entities.Customer;
 import io.ismaildrissi.app.digitalbanking.enums.AccountStatus;
@@ -7,6 +8,7 @@ import io.ismaildrissi.app.digitalbanking.enums.OperationType;
 import io.ismaildrissi.app.digitalbanking.exceptions.BankAccountNotFoundException;
 import io.ismaildrissi.app.digitalbanking.exceptions.CustomerNotFoundException;
 import io.ismaildrissi.app.digitalbanking.exceptions.InsufficientBalanceException;
+import io.ismaildrissi.app.digitalbanking.mappers.BankAccountMapperImpl;
 import io.ismaildrissi.app.digitalbanking.repositories.AccountOperationRepository;
 import io.ismaildrissi.app.digitalbanking.repositories.BankAccountRepository;
 import io.ismaildrissi.app.digitalbanking.repositories.CustomerRepository;
@@ -28,10 +30,21 @@ public class BankAccountServiceImpl implements BankAccountService{
     private final BankAccountRepository bankAccountRepository;
     private final CustomerRepository customerRepository;
     private final AccountOperationRepository accountOperationRepository;
+    private final BankAccountMapperImpl bankAccountMapper;
 
     @Override
-    public Customer saveCustomer(Customer customer) {
-        return customerRepository.save(customer);
+    public CustomerDTO saveCustomer(CustomerDTO customer) {
+        return bankAccountMapper.toCustomerDTO(customerRepository.save(bankAccountMapper.toCustomer(customer)));
+    }
+
+    @Override
+    public CustomerDTO updateCustomer(CustomerDTO customer) {
+        return bankAccountMapper.toCustomerDTO(customerRepository.save(bankAccountMapper.toCustomer(customer)));
+    }
+
+    @Override
+    public void deleteCustomer(Long id) {
+        customerRepository.deleteById(id);
     }
 
     private BankAccount saveBankAccount(BankAccount bankAccount, Long customerId) throws CustomerNotFoundException {
@@ -58,8 +71,10 @@ public class BankAccountServiceImpl implements BankAccountService{
     }
 
     @Override
-    public List<Customer> getCustomers() {
-        return customerRepository.findAll();
+    public List<CustomerDTO> listCustomers() {
+        List<Customer> customers = customerRepository.findAll();
+        List<CustomerDTO> customerDTOS = customers.stream().map(bankAccountMapper::toCustomerDTO).toList();
+        return customerDTOS;
     }
 
     @Override
@@ -102,5 +117,16 @@ public class BankAccountServiceImpl implements BankAccountService{
     public void transfer(String accountIdSource, String accountIdDestination, double amount) throws BankAccountNotFoundException, InsufficientBalanceException {
         debit(accountIdSource, amount, "Transfer from " + accountIdSource + " to " + accountIdDestination);
         credit(accountIdDestination, amount, "Transfer from " + accountIdSource + " to " + accountIdDestination);
+    }
+
+    @Override
+    public List<BankAccount> listBankAccount(){
+        return bankAccountRepository.findAll();
+    }
+
+    @Override
+    public CustomerDTO getCustomer(Long id) throws CustomerNotFoundException {
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException("Customer not found"));
+        return bankAccountMapper.toCustomerDTO(customer);
     }
 }
