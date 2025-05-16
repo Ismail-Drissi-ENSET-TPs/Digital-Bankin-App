@@ -4,6 +4,7 @@ import io.ismaildrissi.app.digitalbanking.dtos.CustomerDTO;
 import io.ismaildrissi.app.digitalbanking.entities.BankAccount;
 import io.ismaildrissi.app.digitalbanking.entities.Customer;
 import io.ismaildrissi.app.digitalbanking.exceptions.CustomerNotFoundException;
+import io.ismaildrissi.app.digitalbanking.repositories.CustomerRepository;
 import io.ismaildrissi.app.digitalbanking.services.BankAccountService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,9 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @Slf4j
+@CrossOrigin("*")
 public class CustomerRestController {
+    private final CustomerRepository customerRepository;
     private BankAccountService bankAccountService;
 
     @GetMapping("/customers")
@@ -27,7 +30,7 @@ public class CustomerRestController {
         return bankAccountService.getCustomer(id);
     }
 
-    @PostMapping("/customer")
+    @PostMapping("/customer/")
     public CustomerDTO createCustomer(@RequestBody CustomerDTO customerDTO) {
         return bankAccountService.saveCustomer(customerDTO);
     }
@@ -42,4 +45,8 @@ public class CustomerRestController {
         bankAccountService.deleteCustomer(id);
     }
 
+    @GetMapping("/customers/search")
+    public List<CustomerDTO> searchCustomer(@RequestParam(value = "k", defaultValue = "") String keyword){
+        return bankAccountService.searchCustomers(keyword);
+    }
 }
