@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -107,6 +108,7 @@ public class BankAccountServiceImpl implements BankAccountService{
 
     @Override
     public void transfer(String accountIdSource, String accountIdDestination, double amount) throws BankAccountNotFoundException, InsufficientBalanceException {
+        System.out.println(accountIdSource +  "    " +  accountIdDestination);
         debit(accountIdSource, amount, "Transfer from " + accountIdSource + " to " + accountIdDestination);
         credit(accountIdDestination, amount, "Transfer from " + accountIdSource + " to " + accountIdDestination);
     }
@@ -176,9 +178,28 @@ public class BankAccountServiceImpl implements BankAccountService{
         accountHistoryDTO.setBalance(bankAccount.getBalance());
         accountHistoryDTO.setCurrentPage(page);
         accountHistoryDTO.setPageSize(size);
-        accountHistoryDTO.setAccountOperationDTOS(accountOperations.map(accountOperation -> { return bankAccountMapper.getAccountOperationDTO(accountOperation);}).toList());
-
+        accountOperations.forEach(accountOperation -> {
+            System.out.println(accountOperation.getType());
+        });
+        List<AccountOperationDTO> operations = accountOperations.map(accountOperation-> bankAccountMapper.getAccountOperationDTO(accountOperation)).toList();
+        accountHistoryDTO.setAccountOperationDTOS(operations);
         return accountHistoryDTO;
+    }
+
+    @Override
+    public List<AccountHistoryDTO> accountsHistories() {
+        List<BankAccount> bankAccount = bankAccountRepository.findAll();
+        List<AccountHistoryDTO> accountHistoryDTOList = new ArrayList<>();
+        for (BankAccount account : bankAccount) {
+            List<AccountOperation> accountOperations = accountOperationRepository.findAllByBankAccountId(account.getId());
+            AccountHistoryDTO accountHistoryDTO = new AccountHistoryDTO();
+            accountHistoryDTO.setAccountId(account.getId());
+            accountHistoryDTO.setBalance(account.getBalance());
+            List<AccountOperationDTO> operations = accountOperations.stream().map(accountOperation-> bankAccountMapper.getAccountOperationDTO(accountOperation)).toList();
+            accountHistoryDTO.setAccountOperationDTOS(operations);
+            accountHistoryDTOList.add(accountHistoryDTO);
+        }
+        return accountHistoryDTOList;
     }
 
     @Override

@@ -27,6 +27,9 @@ public interface BankAccountService {
     SavingAccountDTO saveSavingAccount(double intitialBalance, double interestRate, Long customerId) throws CustomerNotFoundException;
 
     List<AccountOperationDTO> accountHistory(String accountId);
+
+    List<AccountHistoryDTO> accountsHistories();
+
     List<CustomerDTO> searchCustomers(String keyword);
     AccountHistoryDTO accountHistory(String accountId, int page, int size) throws BankAccountNotFoundException;
 }
