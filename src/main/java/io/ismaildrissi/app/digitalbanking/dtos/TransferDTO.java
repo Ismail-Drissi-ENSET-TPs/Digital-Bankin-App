@@ -7,4 +7,5 @@ public class TransferDTO {
     private String senderAccountId;
     private String receiverAccountId;
     private int balance;
+    private String desciption;
 }
