@@ -1,0 +1,52 @@
+stages:
+  - install
+  - test
+  - build
+  - deploy
+
+variables:
+  APP_NAME: digital-bank-backend
+  ENV: staging
+
+# Use a Maven image for build and test stages
+install_stage:
+  stage: install
+  image: maven:3.8.8-openjdk-17
+  script:
+    - mvn clean install -DskipTests=true
+  artifacts:
+    paths:
+      - target/
+
+test_stage:
+  stage: test
+  image: maven:3.8.8-openjdk-17
+  dependencies:
+    - install_stage
+  script:
+    - mvn test
+
+build_stage:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:v1.9.0-debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - >
+      echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" 
+      > /kaniko/.docker/config.json
+    - /kaniko/executor
+      --context "$CI_PROJECT_DIR"
+      --dockerfile "$CI_PROJECT_DIR/Dockerfile"
+      --destination "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
+  # Usually kaniko doesn’t output an image.tar, so you can remove artifacts unless you save the image locally
+  # artifacts:
+  #   paths:
+  #     - image.tar
+  #   when: on_success
+
+deploy_stage:
+  stage: deploy
+  script:
+    - echo "Deploy step not implemented yet"
