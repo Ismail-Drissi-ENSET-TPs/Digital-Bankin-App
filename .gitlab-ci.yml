@@ -11,7 +11,7 @@ variables:
 # Use a Maven image for build and test stages
 install_stage:
   stage: install
-  image: maven:3.8.8-openjdk-17
+  image: maven:3.9.9-ibm-semeru-21-jammy
   script:
     - mvn clean install -DskipTests=true
   artifacts:
@@ -20,7 +20,7 @@ install_stage:
 
 test_stage:
   stage: test
-  image: maven:3.8.8-openjdk-17
+  image: maven:3.9.9-ibm-semeru-21-jammy
   dependencies:
     - install_stage
   script:
@@ -40,11 +40,6 @@ build_stage:
       --context "$CI_PROJECT_DIR"
       --dockerfile "$CI_PROJECT_DIR/Dockerfile"
       --destination "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
-  # Usually kaniko doesn’t output an image.tar, so you can remove artifacts unless you save the image locally
-  # artifacts:
-  #   paths:
-  #     - image.tar
-  #   when: on_success
 
 deploy_stage:
   stage: deploy
