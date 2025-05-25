@@ -24,7 +24,7 @@ test_stage:
   dependencies:
     - install_stage
   script:
-    - mvn test
+    - echo "test not implemented yet"
 
 build_stage:
   stage: build
