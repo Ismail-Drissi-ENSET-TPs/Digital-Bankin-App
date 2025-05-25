@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 public class SecurityController {
     @Autowired
     private AuthenticationManager authenticationManager;
+
     @Autowired
     private JwtEncoder jwtEncoder;
 
@@ -35,7 +36,7 @@ public class SecurityController {
     public Map<String, String> login(String username, String password){
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         Instant instant = Instant.now();
-        String scope = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(""));
+        String scope = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(" "));
         JwtClaimsSet jwtClaimsSet = JwtClaimsSet.builder()
                 .issuedAt(instant)
                 .expiresAt(instant.plus(10, ChronoUnit.MINUTES))

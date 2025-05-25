@@ -8,6 +8,7 @@ import io.ismaildrissi.app.digitalbanking.entities.SavingAccount;
 import io.ismaildrissi.app.digitalbanking.exceptions.BankAccountNotFoundException;
 import io.ismaildrissi.app.digitalbanking.exceptions.CustomerNotFoundException;
 import io.ismaildrissi.app.digitalbanking.exceptions.InsufficientBalanceException;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -25,11 +26,10 @@ public interface BankAccountService {
     List<BankAccountDTO> listBankAccount();
     CurrentAccountDTO saveCurrentAccount(double initialBalance, double overdraft, Long customerId) throws CustomerNotFoundException;
     SavingAccountDTO saveSavingAccount(double intitialBalance, double interestRate, Long customerId) throws CustomerNotFoundException;
-
     List<AccountOperationDTO> accountHistory(String accountId);
-
     List<AccountHistoryDTO> accountsHistories();
-
     List<CustomerDTO> searchCustomers(String keyword);
     AccountHistoryDTO accountHistory(String accountId, int page, int size) throws BankAccountNotFoundException;
+    List<BankAccountDTO> listBankAccountByCustomerId(Long customerId);
+
 }

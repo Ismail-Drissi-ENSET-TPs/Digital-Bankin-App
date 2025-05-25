@@ -1,5 +1,6 @@
 package io.ismaildrissi.app.digitalbanking.web;
 
+import io.ismaildrissi.app.digitalbanking.dtos.BankAccountDTO;
 import io.ismaildrissi.app.digitalbanking.dtos.CustomerDTO;
 import io.ismaildrissi.app.digitalbanking.entities.BankAccount;
 import io.ismaildrissi.app.digitalbanking.entities.Customer;
@@ -55,5 +56,11 @@ public class CustomerRestController {
     @GetMapping("/customers/search")
     public List<CustomerDTO> searchCustomer(@RequestParam(value = "k", defaultValue = "") String keyword){
         return bankAccountService.searchCustomers(keyword);
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_ROLE_USER')")
+    @GetMapping("/customer/{id}/accounts")
+    public List<BankAccountDTO> getBankAccountByCustomerId(@PathVariable Long id){
+        return bankAccountService.listBankAccountByCustomerId(id);
     }
 }

@@ -57,6 +57,7 @@ public class BankAccountRestController {
         bankAccountService.transfer(transferDTO.getReceiverAccountId(), transferDTO.getSenderAccountId(), transferDTO.getBalance());
     }
 
+
     @PreAuthorize("hasAuthority('SCOPE_ROLE_USER')")
     @PostMapping("/accounts/credit")
     public void credit(@RequestBody CreditDebitDTO creditDebitDTO) throws BankAccountNotFoundException {

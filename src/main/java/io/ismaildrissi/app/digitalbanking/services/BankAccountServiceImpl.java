@@ -206,4 +206,16 @@ public class BankAccountServiceImpl implements BankAccountService{
     public List<CustomerDTO> searchCustomers(String keyword) {
         return customerRepository.findByNameContains(keyword).stream().map(bankAccountMapper::getCustomerDTO).toList();
     }
+
+    @Override
+    public List<BankAccountDTO> listBankAccountByCustomerId(Long customerId) {
+        return bankAccountRepository.findAllByCustomerId(customerId).stream().map(bankAccount -> {
+            boolean b = bankAccount instanceof SavingAccount;
+            if(b==true){
+                return bankAccountMapper.getSavingAccountDTO((SavingAccount) bankAccount);
+            } else {
+                return bankAccountMapper.getCurrentAccountDTO((CurrentAccount) bankAccount);
+            }
+        }).toList();
+    }
 }
