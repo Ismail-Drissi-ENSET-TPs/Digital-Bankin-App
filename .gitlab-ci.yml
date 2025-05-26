@@ -2,7 +2,7 @@ stages:
   - install
   - test
   - build
-  - deploy
+  - update
 
 variables:
   APP_NAME: digital-bank-backend
@@ -41,7 +41,38 @@ build_stage:
       --dockerfile "$CI_PROJECT_DIR/Dockerfile"
       --destination "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
 
-deploy_stage:
-  stage: deploy
+update_stage:
+  stage: update
+  image:
+    name: ubuntu:22.04
+  before_script:
+    - 'which ssh-agent || (apt-get update -y && apt-get install -y openssh-client git)'
+
+    # Setup SSH directory
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa
+    - chmod 400 ~/.ssh/id_rsa
+
+    # Add GitLab.com to known_hosts to avoid authenticity prompt
+    - ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+    # Start ssh-agent and add the key
+    - eval "$(ssh-agent -s)"
+    - ssh-add ~/.ssh/id_rsa
+
+    # Configure Git identity
+    - git config --global user.email "drissiisismail@gmail.com"
+    - git config --global user.name "drissiisismail"
+
+    - git clone git@gitlab.com:digitalbankingapp/digital-banking-app-helm-chart.git
+    - cd digital-banking-app-helm-chart
+    - ls -latr
   script:
-    - echo "Deploy step not implemented yet"
+    # Update Image TAG
+    - sed -i "/^backend_image:/,/^[^ ]/ s|^\(\s*tag:\).*|\1 ${CI_COMMIT_SHORT_SHA}|" custom-values.yaml
+    - cat custom-values.yaml
+    - git add custom-values.yaml
+    - git commit -am "Update Image"
+    - git push
+
